@@ -4,27 +4,17 @@ pub struct Day2 {}
 
 impl Day for Day2 {
     fn part_a(lines: &[String]) -> String {
-        let ranges: Vec<&str> = lines
+        lines
             .into_iter()
             .flat_map(|line| line.split(','))
             .filter(|r| r.len() > 0)
-            .collect();
-
-        let ranges: Vec<(u64, u64)> = ranges
-            .into_iter()
             .map(|line| {
-                let mut vals = line.split('-');
+                let mut vals = line.split('-').map(|n| n.parse().unwrap());
                 (vals.next().unwrap(), vals.next().unwrap())
             })
-            .map(|(f, s)| (f.parse().unwrap(), s.parse().unwrap()))
-            .collect();
-
-        let twice_counts: u64 = ranges
-            .into_iter()
             .flat_map(|(f, s)| (f..=s).filter(|v| is_twice(*v)))
-            .sum();
-
-        format!("{}", twice_counts)
+            .sum::<u64>()
+            .to_string()
     }
 
     fn part_b(lines: &[String]) -> String {
