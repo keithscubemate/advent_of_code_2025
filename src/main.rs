@@ -1,4 +1,4 @@
-use advent_of_code_2025::{day::Day, day1::Day1, day2::Day2};
+use advent_of_code_2025::{day::Day, day1::Day1, day2::Day2, day3::Day3};
 use std::io;
 
 use clap::Parser;
@@ -22,6 +22,7 @@ fn main() {
     match args.day.as_str() {
         "day1" => run::<Day1>(lines),
         "day2" => run::<Day2>(lines),
+        "day3" => run::<Day3>(lines),
         _ => panic!(),
     }
 }

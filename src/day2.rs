@@ -5,9 +5,9 @@ pub struct Day2 {}
 impl Day for Day2 {
     fn part_a(lines: &[String]) -> String {
         lines
-            .into_iter()
+            .iter()
             .flat_map(|line| line.split(','))
-            .filter(|r| r.len() > 0)
+            .filter(|r| !r.is_empty())
             .map(|line| {
                 let mut vals = line.split('-').map(|n| n.parse().unwrap());
                 (vals.next().unwrap(), vals.next().unwrap())
@@ -19,9 +19,9 @@ impl Day for Day2 {
 
     fn part_b(lines: &[String]) -> String {
         let ranges: Vec<&str> = lines
-            .into_iter()
+            .iter()
             .flat_map(|line| line.split(','))
-            .filter(|r| r.len() > 0)
+            .filter(|r| !r.is_empty())
             .collect();
 
         let ranges: Vec<(u64, u64)> = ranges
@@ -76,7 +76,7 @@ fn is_repeat_n(num: &str, num_splits: usize) -> bool {
     let chars: Vec<char> = num.chars().collect();
     let parts: Vec<_> = chars.chunks(chunk_size).collect();
 
-    let part_pairs = parts.windows(2);
+    let mut part_pairs = parts.windows(2);
 
-    part_pairs.map(|pp| pp[0] == pp[1]).all(|b| b)
+    part_pairs.all(|pp| pp[0] == pp[1])
 }

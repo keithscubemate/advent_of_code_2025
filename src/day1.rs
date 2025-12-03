@@ -24,7 +24,7 @@ impl Day for Day1 {
             }
         }
 
-        return format!("{}", zero_count);
+        format!("{}", zero_count)
     }
 
     fn part_b(lines: &[String]) -> String {
@@ -59,7 +59,7 @@ impl Day for Day1 {
             }
         }
 
-        return format!("{}", zero_count);
+        format!("{}", zero_count)
     }
 }
 
@@ -69,7 +69,7 @@ fn parse_line(line: &str) -> Result<i32> {
     let val = line[1..].parse::<i32>()?;
 
     if negative {
-        return Ok(val * -1);
+        return Ok(-val);
     }
 
     Ok(val)
