@@ -1,4 +1,25 @@
-pub mod day;
-pub mod day1;
-pub mod day2;
-pub mod day3;
+mod day;
+mod day1;
+mod day2;
+mod day3;
+mod day4;
+
+use crate::{day::Day, day1::Day1, day2::Day2, day3::Day3, day4::Day4};
+
+pub fn run(lines: Vec<String>, day: &str) {
+    match day {
+        "day1" => run_day::<Day1>(lines),
+        "day2" => run_day::<Day2>(lines),
+        "day3" => run_day::<Day3>(lines),
+        "day4" => run_day::<Day4>(lines),
+        _ => panic!(),
+    }
+}
+
+fn run_day<T: Day>(lines: Vec<String>) {
+    let res_a = T::part_a(&lines[..]);
+    let res_b = T::part_b(&lines[..]);
+
+    println!("a: {}", res_a);
+    println!("b: {}", res_b);
+}
