@@ -3,8 +3,9 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 
-use crate::{day::Day, day1::Day1, day2::Day2, day3::Day3, day4::Day4};
+use crate::{day::Day, day1::Day1, day2::Day2, day3::Day3, day4::Day4, day5::Day5};
 
 pub fn run(lines: Vec<String>, day: &str) {
     match day {
@@ -12,6 +13,7 @@ pub fn run(lines: Vec<String>, day: &str) {
         "day2" => run_day::<Day2>(lines),
         "day3" => run_day::<Day3>(lines),
         "day4" => run_day::<Day4>(lines),
+        "day5" => run_day::<Day5>(lines),
         _ => panic!(),
     }
 }
