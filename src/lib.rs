@@ -7,10 +7,11 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 use crate::{
     day::Day, day1::Day1, day2::Day2, day3::Day3, day4::Day4, day5::Day5, day6::Day6, day7::Day7,
-    day8::Day8,
+    day8::Day8, day9::Day9,
 };
 
 pub fn run(lines: Vec<String>, day: &str) {
@@ -23,7 +24,8 @@ pub fn run(lines: Vec<String>, day: &str) {
         "day6" => run_day::<Day6>(lines),
         "day7" => run_day::<Day7>(lines),
         "day8" => run_day::<Day8>(lines),
-        _ => panic!(),
+        "day9" => run_day::<Day9>(lines),
+        _ => panic!("Day [{}] isn't supported", day),
     }
 }
 
