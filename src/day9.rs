@@ -38,7 +38,7 @@ impl Day for Day9 {
             })
             .collect();
 
-        let world = World::new(points.clone());
+        let world = Atlas::new(points.clone());
 
         let mut max_area = 0;
         for i in 0..points.len() - 1 {
@@ -52,9 +52,9 @@ impl Day for Day9 {
                 .filter(|(other, _)| {
                     let square = Square::new(&point, other);
 
-                    let perim = square.perimeter();
+                    let mut perim = square.perimeter();
 
-                    perim.into_iter().all(|p| world.is_valid(p))
+                    perim.all(|p| world.is_valid(p))
                 })
                 .map(|(_, a)| a)
                 .max();
@@ -62,6 +62,7 @@ impl Day for Day9 {
             if let Some(new_area) = new_area {
                 max_area = new_area;
             }
+            println!("heck yeah: {} -> {}/{}", max_area, i, points.len());
         }
 
         max_area.to_string()
@@ -104,9 +105,7 @@ impl Line {
         let x1 = self.p1.x;
         let x2 = self.p2.x;
 
-        let (x1, x2) = if x1 < x2 { (x1, x2) } else { (x2, x1) };
-
-        x1 <= x && x <= x2
+        x1 <= x && x <= x2 || x2 <= x && x <= x1
     }
 
     fn y_line(&self) -> bool {
@@ -117,9 +116,7 @@ impl Line {
         let y1 = self.p1.y;
         let y2 = self.p2.y;
 
-        let (y1, y2) = if y1 < y2 { (y1, y2) } else { (y2, y1) };
-
-        y1 <= y && y <= y2
+        y1 <= y && y <= y2 || y2 <= y && y <= y1
     }
 }
 
@@ -153,43 +150,26 @@ impl Square {
         }
     }
 
-    fn perimeter(&self) -> Vec<Point> {
+    fn perimeter(&self) -> impl Iterator<Item = Point> {
         let Point { x: x1, y: y1 } = self.nw;
         let Point { x: x2, y: y2 } = self.se;
 
-        let mut rv = vec![];
+        let top = (x1..=x2).map(move |x| Point { x, y: y1 });
+        let rig = (y1..=y2).map(move |y| Point { x: x1, y });
+        let bot = (x1..=x2).map(move |x| Point { x, y: y2 });
+        let lef = (y1..=y2).map(move |y| Point { x: x2, y });
 
-        // Top
-        for x in x1..=x2 {
-            rv.push(Point { x, y: y1 });
-        }
-
-        // Right
-        for y in y1..=y2 {
-            rv.push(Point { x: x1, y });
-        }
-
-        // Bottom
-        for x in x1..=x2 {
-            rv.push(Point { x, y: y2 });
-        }
-
-        // Left
-        for y in y1..=y2 {
-            rv.push(Point { x: x2, y });
-        }
-
-        rv
+        top.chain(rig).chain(bot).chain(lef)
     }
 }
 
-struct World {
+struct Atlas {
     points: Vec<Point>,
     x_lines: Vec<Line>,
     y_lines: Vec<Line>,
 }
 
-impl World {
+impl Atlas {
     fn new(points: Vec<Point>) -> Self {
         let mut lines = vec![];
 
@@ -225,16 +205,34 @@ impl World {
         }
     }
 
+    fn max_area(self) -> u64 {
+        (&self.points[..self.points.len() - 1])
+            .par_iter()
+            .enumerate()
+            .flat_map_iter(|(i, start)| {
+                let ends = &self.points[i + 1..];
+
+                ends.into_iter().map(move |e| (start, e))
+            })
+            .map(|(start, end)| (start, end, start.area(*end)))
+            .filter(|(s, e, _)| {
+                let square = Square::new(&s, e);
+
+                let mut perim = square.perimeter();
+
+                perim.all(|p| self.is_valid(p))
+            })
+            .map(|(_, _, a)| a)
+            .max()
+            .unwrap()
+    }
+
     fn is_valid(&self, point: Point) -> bool {
         if self.is_red(point) {
             return true;
         }
 
-        if self.is_green(point) {
-            return true;
-        }
-
-        false
+        self.is_green(point)
     }
 
     fn is_red(&self, point: Point) -> bool {
@@ -242,6 +240,16 @@ impl World {
     }
 
     fn is_green(&self, point: Point) -> bool {
+        let on_bound = self
+            .x_lines
+            .iter()
+            .chain(self.y_lines.iter())
+            .any(|l| l.x_in(point.x) && l.y_in(point.y));
+
+        if on_bound {
+            return true;
+        }
+
         let x = self.is_in_x_bounds(point);
         let y = self.is_in_y_bounds(point);
 
@@ -249,34 +257,19 @@ impl World {
     }
 
     fn is_in_x_bounds(&self, point: Point) -> bool {
-        let x_lines = self
-            .x_lines
-            .iter()
-            .filter(|l| l.y_in(point.y))
-            .collect::<Vec<_>>();
-
-        let mut xlm = vec![];
-
-        let mut i = 0;
-        loop {
-            let l1 = x_lines[i];
-            let l2 = x_lines[i + 1];
-
-            xlm.push(l1);
-
-            if l1.p2.y == l2.p1.y || l1.p1.y == l2.p2.y {
-                i += 2;
-            } else {
-                i += 1;
-            }
-
-            if i >= x_lines.len() - 1 {
-                break;
-            }
-        }
+        let x_lines: Vec<&Line> = self.x_lines.iter().filter(|l| l.y_in(point.y)).collect();
 
         let mut cross = 0;
-        for l in xlm {
+        for i in 0..x_lines.len() {
+            let l = x_lines[i];
+            if i != 0 {
+                let l2 = x_lines[i - 1];
+
+                if l.p2.y == l2.p1.y || l.p1.y == l2.p2.y {
+                    continue;
+                }
+            }
+
             if l.p1.x == point.x {
                 return true;
             }
@@ -292,34 +285,19 @@ impl World {
     }
 
     fn is_in_y_bounds(&self, point: Point) -> bool {
-        let y_lines = self
-            .y_lines
-            .iter()
-            .filter(|l| l.x_in(point.x))
-            .collect::<Vec<_>>();
-
-        let mut ylm = vec![];
-
-        let mut i = 0;
-        loop {
-            let l1 = y_lines[i];
-            let l2 = y_lines[i + 1];
-
-            ylm.push(l1);
-
-            if l1.p2.x == l2.p1.x || l1.p1.x == l2.p2.x {
-                i += 2;
-            } else {
-                i += 1;
-            }
-
-            if i >= y_lines.len() - 1 {
-                break;
-            }
-        }
+        let y_lines: Vec<&Line> = self.y_lines.iter().filter(|l| l.x_in(point.x)).collect();
 
         let mut cross = 0;
-        for l in ylm {
+        for i in 0..y_lines.len() {
+            let l = y_lines[i];
+            if i != 0 {
+                let l2 = y_lines[i - 1];
+
+                if l.p2.x == l2.p1.x || l.p1.x == l2.p2.x {
+                    continue;
+                }
+            }
+
             if l.p1.y == point.y {
                 return true;
             }
