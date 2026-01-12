@@ -98,3 +98,133 @@ struct Boundary {
     value: u64,
     side: Side,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_part_a_single_range_single_id_match() {
+        let input = vec![
+            "1-10".to_string(),
+            "".to_string(),
+            "5".to_string(),
+        ];
+        assert_eq!(Day5::part_a(&input), "1");
+    }
+
+    #[test]
+    fn test_part_a_single_range_single_id_no_match() {
+        let input = vec![
+            "1-10".to_string(),
+            "".to_string(),
+            "15".to_string(),
+        ];
+        assert_eq!(Day5::part_a(&input), "0");
+    }
+
+    #[test]
+    fn test_part_a_multiple_ranges() {
+        let input = vec![
+            "1-5".to_string(),
+            "10-20".to_string(),
+            "".to_string(),
+            "3".to_string(),
+            "7".to_string(),
+            "15".to_string(),
+        ];
+        // 3 is in 1-5, 7 is in neither, 15 is in 10-20
+        assert_eq!(Day5::part_a(&input), "2");
+    }
+
+    #[test]
+    fn test_part_a_boundary_values() {
+        let input = vec![
+            "5-10".to_string(),
+            "".to_string(),
+            "5".to_string(),
+            "10".to_string(),
+            "4".to_string(),
+            "11".to_string(),
+        ];
+        // 5 and 10 are in range (inclusive), 4 and 11 are not
+        assert_eq!(Day5::part_a(&input), "2");
+    }
+
+    #[test]
+    fn test_part_a_overlapping_ranges() {
+        let input = vec![
+            "1-10".to_string(),
+            "5-15".to_string(),
+            "".to_string(),
+            "7".to_string(),
+        ];
+        // 7 matches both ranges, but should only count once
+        assert_eq!(Day5::part_a(&input), "1");
+    }
+
+    #[test]
+    fn test_part_b_single_range() {
+        let input = vec![
+            "1-5".to_string(),
+            "".to_string(),
+        ];
+        // Range 1-5 has 5 fresh IDs
+        assert_eq!(Day5::part_b(&input), "5");
+    }
+
+    #[test]
+    fn test_part_b_non_overlapping_ranges() {
+        let input = vec![
+            "1-5".to_string(),
+            "10-15".to_string(),
+            "".to_string(),
+        ];
+        // 5 + 6 = 11 fresh IDs
+        assert_eq!(Day5::part_b(&input), "11");
+    }
+
+    #[test]
+    fn test_part_b_overlapping_ranges() {
+        let input = vec![
+            "1-10".to_string(),
+            "5-15".to_string(),
+            "".to_string(),
+        ];
+        // Merged range: 1-15 = 15 fresh IDs
+        assert_eq!(Day5::part_b(&input), "15");
+    }
+
+    #[test]
+    fn test_part_b_fully_contained_range() {
+        let input = vec![
+            "1-20".to_string(),
+            "5-10".to_string(),
+            "".to_string(),
+        ];
+        // 5-10 is fully within 1-20, so just 20 fresh IDs
+        assert_eq!(Day5::part_b(&input), "20");
+    }
+
+    #[test]
+    fn test_part_b_adjacent_ranges() {
+        let input = vec![
+            "1-5".to_string(),
+            "6-10".to_string(),
+            "".to_string(),
+        ];
+        // Adjacent but not overlapping: 5 + 5 = 10 fresh IDs
+        assert_eq!(Day5::part_b(&input), "10");
+    }
+
+    #[test]
+    fn test_boundary_ordering() {
+        // Test that boundaries sort correctly (by value, then Start before End)
+        let b1 = Boundary { value: 5, side: Side::Start };
+        let b2 = Boundary { value: 5, side: Side::End };
+        let b3 = Boundary { value: 10, side: Side::Start };
+
+        assert!(b1 < b2);
+        assert!(b2 < b3);
+    }
+}
