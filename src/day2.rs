@@ -1,5 +1,21 @@
+//! Day 2: Repeating Number Patterns
+//!
+//! Analyzes ranges of numbers to find those with specific digit repetition patterns.
+//!
+//! ## Input Format
+//! Comma-separated ranges in the format `start-end`, e.g., `10-100,200-300`.
+//!
+//! ## Part A
+//! Sums all "twice" numbers in the ranges - numbers where the first half of digits
+//! equals the second half (e.g., 1212, 77, 123123).
+//!
+//! ## Part B
+//! Sums all "repeat" numbers - numbers that can be divided into 2 or more identical
+//! chunks (e.g., 111, 1212, 121212).
+
 use crate::day::Day;
 
+/// Solution for Day 2: Repeating Number Patterns puzzle.
 pub struct Day2 {}
 
 impl Day for Day2 {
@@ -42,6 +58,10 @@ impl Day for Day2 {
     }
 }
 
+/// Checks if a number is a "twice" number.
+///
+/// A twice number has an even number of digits where the first half
+/// exactly matches the second half (e.g., 77, 1212, 123123).
 fn is_twice(num: u64) -> bool {
     let num = num.to_string();
 
@@ -56,6 +76,10 @@ fn is_twice(num: u64) -> bool {
     left == right
 }
 
+/// Checks if a number can be split into repeating identical chunks.
+///
+/// Tries all possible chunk counts (2 to digit length) to find any
+/// valid repeating pattern (e.g., 111 splits into "1","1","1").
 fn is_repeat(num: u64) -> bool {
     let num = num.to_string();
     for len in 2..=num.len() {
@@ -66,6 +90,9 @@ fn is_repeat(num: u64) -> bool {
     false
 }
 
+/// Checks if a string can be split into exactly `num_splits` identical chunks.
+///
+/// Returns false if the string length isn't evenly divisible by `num_splits`.
 fn is_repeat_n(num: &str, num_splits: usize) -> bool {
     if num.len() % num_splits != 0 {
         return false;
