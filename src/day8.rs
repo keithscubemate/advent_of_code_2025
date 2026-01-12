@@ -1,7 +1,24 @@
+//! Day 8: Point Clustering
+//!
+//! Clusters 3D points by Euclidean distance using a Kruskal-style algorithm.
+//! Points are grouped into circuits by connecting the closest pairs first.
+//!
+//! ## Input Format
+//! Each line contains comma-separated 3D coordinates: `x,y,z`.
+//!
+//! ## Part A
+//! Finds the product of the sizes of the three largest circuits after
+//! connecting the closest `pair_limit` pairs.
+//!
+//! ## Part B
+//! Finds the pair of points that, when connected, joins all points into
+//! a single circuit. Returns the product of their x-coordinates.
+
 use crate::day::Day;
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
+/// Solution for Day 8: Point Clustering puzzle.
 pub struct Day8 {}
 
 impl Day for Day8 {
@@ -158,8 +175,12 @@ impl Day for Day8 {
     }
 }
 
+/// An N-dimensional point used for clustering.
+///
+/// Generic over the number of dimensions N (typically 3 for this puzzle).
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 struct ConnectionBox<const N: usize> {
+    /// The coordinates in N-dimensional space
     coords: [i64; N],
 }
 
@@ -172,6 +193,10 @@ impl<const N: usize> Hash for ConnectionBox<N> {
 }
 
 impl<const N: usize> ConnectionBox<N> {
+    /// Creates a new connection box from a vector of coordinates.
+    ///
+    /// # Panics
+    /// Panics if the vector length doesn't match N.
     fn new(coords: Vec<i64>) -> Self {
         if coords.len() != N {
             panic!();
@@ -182,6 +207,9 @@ impl<const N: usize> ConnectionBox<N> {
         }
     }
 
+    /// Calculates the integer Euclidean distance to another point.
+    ///
+    /// Uses integer square root for the final result.
     fn distance(&self, other: &Self) -> i64 {
         let mut total = 0;
         for (s, o) in self.coords.iter().zip(other.coords.iter()) {
