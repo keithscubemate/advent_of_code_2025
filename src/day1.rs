@@ -1,7 +1,24 @@
+//! Day 1: Dial Rotation
+//!
+//! Simulates a circular dial with 100 positions (0-99). The dial starts at position 50,
+//! and each instruction rotates it left (L) or right (R) by a given amount.
+//!
+//! ## Input Format
+//! Each line contains a direction and amount, e.g., `L68` (left 68) or `R48` (right 48).
+//!
+//! ## Part A
+//! Counts how many times the dial lands exactly on position 0 after each move,
+//! treating moves modularly within the dial size.
+//!
+//! ## Part B
+//! Counts zero crossings including full rotations. Large moves that wrap around
+//! the dial multiple times count each pass through zero.
+
 use anyhow::Result;
 
 use crate::day::Day;
 
+/// Solution for Day 1: Dial Rotation puzzle.
 pub struct Day1;
 
 impl Day for Day1 {
@@ -63,6 +80,16 @@ impl Day for Day1 {
     }
 }
 
+/// Parses a dial instruction from a line of input.
+///
+/// Instructions have the format `<direction><amount>` where direction is
+/// `L` (left/negative) or `R` (right/positive).
+///
+/// # Arguments
+/// * `line` - A string like "L68" or "R48"
+///
+/// # Returns
+/// A signed integer representing the rotation amount (negative for left).
 fn parse_line(line: &str) -> Result<i32> {
     let negative = line.starts_with('L');
 
