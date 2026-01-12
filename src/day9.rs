@@ -1,6 +1,23 @@
+//! Day 9: Maximum Rectangle
+//!
+//! Finds the maximum area axis-aligned rectangle from a set of 2D points.
+//! Uses parallel processing with rayon for efficient computation.
+//!
+//! ## Input Format
+//! Each line contains comma-separated 2D coordinates: `x,y`.
+//!
+//! ## Part A
+//! Finds the maximum rectangle area formed by any two points as opposite
+//! corners, considering all point pairs.
+//!
+//! ## Part B
+//! Finds the maximum rectangle area where the entire perimeter lies within
+//! a valid boundary defined by the input points (polygon interior check).
+
 use crate::day::Day;
 use rayon::prelude::*;
 
+/// Solution for Day 9: Maximum Rectangle puzzle.
 pub struct Day9 {}
 
 impl Day for Day9 {
@@ -69,6 +86,7 @@ impl Day for Day9 {
     }
 }
 
+/// A 2D point with integer coordinates.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Copy, Clone)]
 struct Point {
     x: i64,
@@ -76,6 +94,9 @@ struct Point {
 }
 
 impl Point {
+    /// Calculates the area of the rectangle formed with another point as opposite corner.
+    ///
+    /// The area includes the boundary points (hence +1 for each dimension).
     fn area(&self, other: Self) -> u64 {
         let l = (self.x - other.x).abs() + 1;
         let h = (self.y - other.y).abs() + 1;
@@ -84,6 +105,9 @@ impl Point {
     }
 }
 
+/// A line segment between two points.
+///
+/// Points are ordered so p1 < p2 for consistent comparison.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone)]
 struct Line {
     p1: Point,
@@ -91,16 +115,19 @@ struct Line {
 }
 
 impl Line {
+    /// Creates a new line segment, ordering points consistently.
     fn new(p1: Point, p2: Point) -> Self {
         let (p1, p2) = if p1 < p2 { (p1, p2) } else { (p2, p1) };
 
         Self { p1, p2 }
     }
 
+    /// Returns true if this is a vertical line (constant x).
     fn x_line(&self) -> bool {
         self.p1.x == self.p2.x
     }
 
+    /// Checks if an x-coordinate is within this line's x-range.
     fn x_in(&self, x: i64) -> bool {
         let x1 = self.p1.x;
         let x2 = self.p2.x;
@@ -108,10 +135,12 @@ impl Line {
         x1 <= x && x <= x2 || x2 <= x && x <= x1
     }
 
+    /// Returns true if this is a horizontal line (constant y).
     fn y_line(&self) -> bool {
         self.p1.y == self.p2.y
     }
 
+    /// Checks if a y-coordinate is within this line's y-range.
     fn y_in(&self, y: i64) -> bool {
         let y1 = self.p1.y;
         let y2 = self.p2.y;
@@ -120,6 +149,7 @@ impl Line {
     }
 }
 
+/// An axis-aligned rectangle defined by its four corners.
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Clone)]
 struct Square {
     nw: Point,
@@ -129,6 +159,7 @@ struct Square {
 }
 
 impl Square {
+    /// Creates a rectangle from two opposite corner points.
     fn new(p1: &Point, p2: &Point) -> Self {
         let (x1, x2) = if p1.x < p2.x {
             (p1.x, p2.x)
@@ -150,6 +181,7 @@ impl Square {
         }
     }
 
+    /// Returns an iterator over all points on the rectangle's perimeter.
     fn perimeter(&self) -> impl Iterator<Item = Point> {
         let Point { x: x1, y: y1 } = self.nw;
         let Point { x: x2, y: y2 } = self.se;
@@ -163,13 +195,23 @@ impl Square {
     }
 }
 
+/// A spatial index for efficiently checking point validity within a polygon.
+///
+/// Stores the polygon boundary as separate horizontal and vertical line segments
+/// for efficient ray-casting point-in-polygon tests.
 struct Atlas {
+    /// Original polygon vertices
     points: Vec<Point>,
+    /// Vertical line segments (sorted by x)
     x_lines: Vec<Line>,
+    /// Horizontal line segments (sorted by y)
     y_lines: Vec<Line>,
 }
 
 impl Atlas {
+    /// Creates an Atlas from a sequence of polygon vertices.
+    ///
+    /// Automatically connects the last point to the first to close the polygon.
     fn new(points: Vec<Point>) -> Self {
         let mut lines = vec![];
 
@@ -205,6 +247,8 @@ impl Atlas {
         }
     }
 
+    /// Finds the maximum rectangle area with all perimeter points valid.
+    #[allow(dead_code)]
     fn max_area(self) -> u64 {
         (&self.points[..self.points.len() - 1])
             .par_iter()
@@ -227,6 +271,7 @@ impl Atlas {
             .unwrap()
     }
 
+    /// Checks if a point is valid (on boundary or inside polygon).
     fn is_valid(&self, point: Point) -> bool {
         if self.is_red(point) {
             return true;
@@ -235,10 +280,12 @@ impl Atlas {
         self.is_green(point)
     }
 
+    /// Checks if a point is exactly on a polygon vertex.
     fn is_red(&self, point: Point) -> bool {
         self.points.iter().any(|p| *p == point)
     }
 
+    /// Checks if a point is on a polygon edge or inside the polygon.
     fn is_green(&self, point: Point) -> bool {
         let on_bound = self
             .x_lines
@@ -256,6 +303,7 @@ impl Atlas {
         x && y
     }
 
+    /// Checks if a point is inside the polygon using x-axis ray casting.
     fn is_in_x_bounds(&self, point: Point) -> bool {
         let x_lines: Vec<&Line> = self.x_lines.iter().filter(|l| l.y_in(point.y)).collect();
 
@@ -284,6 +332,7 @@ impl Atlas {
         (cross & 1) == 1
     }
 
+    /// Checks if a point is inside the polygon using y-axis ray casting.
     fn is_in_y_bounds(&self, point: Point) -> bool {
         let y_lines: Vec<&Line> = self.y_lines.iter().filter(|l| l.x_in(point.x)).collect();
 
@@ -310,5 +359,139 @@ impl Atlas {
         }
 
         (cross & 1) == 1
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_point_area_same_point() {
+        let p = Point { x: 5, y: 5 };
+        // Area of a 1x1 rectangle (same point)
+        assert_eq!(p.area(p), 1);
+    }
+
+    #[test]
+    fn test_point_area_horizontal_line() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 4, y: 0 };
+        // Width 5 (0 to 4 inclusive), height 1 = 5
+        assert_eq!(p1.area(p2), 5);
+    }
+
+    #[test]
+    fn test_point_area_vertical_line() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 0, y: 4 };
+        // Width 1, height 5 = 5
+        assert_eq!(p1.area(p2), 5);
+    }
+
+    #[test]
+    fn test_point_area_rectangle() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 3, y: 2 };
+        // Width 4, height 3 = 12
+        assert_eq!(p1.area(p2), 12);
+    }
+
+    #[test]
+    fn test_line_new_orders_points() {
+        let p1 = Point { x: 5, y: 5 };
+        let p2 = Point { x: 1, y: 1 };
+        let line = Line::new(p1, p2);
+        // Should order p2 before p1
+        assert_eq!(line.p1, p2);
+        assert_eq!(line.p2, p1);
+    }
+
+    #[test]
+    fn test_line_x_line() {
+        let vertical = Line::new(Point { x: 5, y: 0 }, Point { x: 5, y: 10 });
+        let horizontal = Line::new(Point { x: 0, y: 5 }, Point { x: 10, y: 5 });
+        assert!(vertical.x_line());
+        assert!(!horizontal.x_line());
+    }
+
+    #[test]
+    fn test_line_y_line() {
+        let vertical = Line::new(Point { x: 5, y: 0 }, Point { x: 5, y: 10 });
+        let horizontal = Line::new(Point { x: 0, y: 5 }, Point { x: 10, y: 5 });
+        assert!(!vertical.y_line());
+        assert!(horizontal.y_line());
+    }
+
+    #[test]
+    fn test_line_x_in() {
+        let line = Line::new(Point { x: 2, y: 0 }, Point { x: 8, y: 0 });
+        assert!(line.x_in(2));
+        assert!(line.x_in(5));
+        assert!(line.x_in(8));
+        assert!(!line.x_in(1));
+        assert!(!line.x_in(9));
+    }
+
+    #[test]
+    fn test_line_y_in() {
+        let line = Line::new(Point { x: 0, y: 2 }, Point { x: 0, y: 8 });
+        assert!(line.y_in(2));
+        assert!(line.y_in(5));
+        assert!(line.y_in(8));
+        assert!(!line.y_in(1));
+        assert!(!line.y_in(9));
+    }
+
+    #[test]
+    fn test_square_new() {
+        let p1 = Point { x: 5, y: 10 };
+        let p2 = Point { x: 1, y: 2 };
+        let sq = Square::new(&p1, &p2);
+        assert_eq!(sq.nw, Point { x: 1, y: 2 });
+        assert_eq!(sq.ne, Point { x: 5, y: 2 });
+        assert_eq!(sq.sw, Point { x: 1, y: 10 });
+        assert_eq!(sq.se, Point { x: 5, y: 10 });
+    }
+
+    #[test]
+    fn test_square_perimeter() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 2, y: 2 };
+        let sq = Square::new(&p1, &p2);
+        let perimeter: Vec<Point> = sq.perimeter().collect();
+        // Perimeter should include all edge points
+        // Top: (0,0), (1,0), (2,0)
+        // Right: (0,0), (0,1), (0,2)
+        // Bottom: (0,2), (1,2), (2,2)
+        // Left: (2,0), (2,1), (2,2)
+        assert!(!perimeter.is_empty());
+        assert!(perimeter.contains(&Point { x: 0, y: 0 }));
+        assert!(perimeter.contains(&Point { x: 2, y: 2 }));
+    }
+
+    #[test]
+    fn test_part_a_simple() {
+        let input = vec![
+            "0,0".to_string(),
+            "5,0".to_string(),
+            "5,5".to_string(),
+            "0,5".to_string(),
+        ];
+        // 4 points forming a square
+        // Maximum area rectangle from any two opposite corners
+        let result = Day9::part_a(&input);
+        assert!(!result.is_empty());
+        // The maximum area should be from (0,0) to (5,5) = 6*6 = 36
+        assert_eq!(result, "36");
+    }
+
+    #[test]
+    fn test_part_a_collinear_points() {
+        let input = vec!["0,0".to_string(), "1,0".to_string(), "2,0".to_string()];
+        // All points on same line
+        // Max area = 3 * 1 = 3 from (0,0) to (2,0)
+        let result = Day9::part_a(&input);
+        assert_eq!(result, "3");
     }
 }
