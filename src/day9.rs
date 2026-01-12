@@ -312,3 +312,141 @@ impl Atlas {
         (cross & 1) == 1
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_point_area_same_point() {
+        let p = Point { x: 5, y: 5 };
+        // Area of a 1x1 rectangle (same point)
+        assert_eq!(p.area(p), 1);
+    }
+
+    #[test]
+    fn test_point_area_horizontal_line() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 4, y: 0 };
+        // Width 5 (0 to 4 inclusive), height 1 = 5
+        assert_eq!(p1.area(p2), 5);
+    }
+
+    #[test]
+    fn test_point_area_vertical_line() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 0, y: 4 };
+        // Width 1, height 5 = 5
+        assert_eq!(p1.area(p2), 5);
+    }
+
+    #[test]
+    fn test_point_area_rectangle() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 3, y: 2 };
+        // Width 4, height 3 = 12
+        assert_eq!(p1.area(p2), 12);
+    }
+
+    #[test]
+    fn test_line_new_orders_points() {
+        let p1 = Point { x: 5, y: 5 };
+        let p2 = Point { x: 1, y: 1 };
+        let line = Line::new(p1, p2);
+        // Should order p2 before p1
+        assert_eq!(line.p1, p2);
+        assert_eq!(line.p2, p1);
+    }
+
+    #[test]
+    fn test_line_x_line() {
+        let vertical = Line::new(Point { x: 5, y: 0 }, Point { x: 5, y: 10 });
+        let horizontal = Line::new(Point { x: 0, y: 5 }, Point { x: 10, y: 5 });
+        assert!(vertical.x_line());
+        assert!(!horizontal.x_line());
+    }
+
+    #[test]
+    fn test_line_y_line() {
+        let vertical = Line::new(Point { x: 5, y: 0 }, Point { x: 5, y: 10 });
+        let horizontal = Line::new(Point { x: 0, y: 5 }, Point { x: 10, y: 5 });
+        assert!(!vertical.y_line());
+        assert!(horizontal.y_line());
+    }
+
+    #[test]
+    fn test_line_x_in() {
+        let line = Line::new(Point { x: 2, y: 0 }, Point { x: 8, y: 0 });
+        assert!(line.x_in(2));
+        assert!(line.x_in(5));
+        assert!(line.x_in(8));
+        assert!(!line.x_in(1));
+        assert!(!line.x_in(9));
+    }
+
+    #[test]
+    fn test_line_y_in() {
+        let line = Line::new(Point { x: 0, y: 2 }, Point { x: 0, y: 8 });
+        assert!(line.y_in(2));
+        assert!(line.y_in(5));
+        assert!(line.y_in(8));
+        assert!(!line.y_in(1));
+        assert!(!line.y_in(9));
+    }
+
+    #[test]
+    fn test_square_new() {
+        let p1 = Point { x: 5, y: 10 };
+        let p2 = Point { x: 1, y: 2 };
+        let sq = Square::new(&p1, &p2);
+        assert_eq!(sq.nw, Point { x: 1, y: 2 });
+        assert_eq!(sq.ne, Point { x: 5, y: 2 });
+        assert_eq!(sq.sw, Point { x: 1, y: 10 });
+        assert_eq!(sq.se, Point { x: 5, y: 10 });
+    }
+
+    #[test]
+    fn test_square_perimeter() {
+        let p1 = Point { x: 0, y: 0 };
+        let p2 = Point { x: 2, y: 2 };
+        let sq = Square::new(&p1, &p2);
+        let perimeter: Vec<Point> = sq.perimeter().collect();
+        // Perimeter should include all edge points
+        // Top: (0,0), (1,0), (2,0)
+        // Right: (0,0), (0,1), (0,2)
+        // Bottom: (0,2), (1,2), (2,2)
+        // Left: (2,0), (2,1), (2,2)
+        assert!(!perimeter.is_empty());
+        assert!(perimeter.contains(&Point { x: 0, y: 0 }));
+        assert!(perimeter.contains(&Point { x: 2, y: 2 }));
+    }
+
+    #[test]
+    fn test_part_a_simple() {
+        let input = vec![
+            "0,0".to_string(),
+            "5,0".to_string(),
+            "5,5".to_string(),
+            "0,5".to_string(),
+        ];
+        // 4 points forming a square
+        // Maximum area rectangle from any two opposite corners
+        let result = Day9::part_a(&input);
+        assert!(!result.is_empty());
+        // The maximum area should be from (0,0) to (5,5) = 6*6 = 36
+        assert_eq!(result, "36");
+    }
+
+    #[test]
+    fn test_part_a_collinear_points() {
+        let input = vec![
+            "0,0".to_string(),
+            "1,0".to_string(),
+            "2,0".to_string(),
+        ];
+        // All points on same line
+        // Max area = 3 * 1 = 3 from (0,0) to (2,0)
+        let result = Day9::part_a(&input);
+        assert_eq!(result, "3");
+    }
+}
