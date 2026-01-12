@@ -488,11 +488,7 @@ mod tests {
 
     #[test]
     fn test_part_a_collinear_points() {
-        let input = vec![
-            "0,0".to_string(),
-            "1,0".to_string(),
-            "2,0".to_string(),
-        ];
+        let input = vec!["0,0".to_string(), "1,0".to_string(), "2,0".to_string()];
         // All points on same line
         // Max area = 3 * 1 = 3 from (0,0) to (2,0)
         let result = Day9::part_a(&input);

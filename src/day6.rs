@@ -257,11 +257,7 @@ mod tests {
 
     #[test]
     fn test_part_a_simple_addition() {
-        let input = vec![
-            "1 2".to_string(),
-            "3 4".to_string(),
-            "+ +".to_string(),
-        ];
+        let input = vec!["1 2".to_string(), "3 4".to_string(), "+ +".to_string()];
         // Column 0: 1 + 3 = 4
         // Column 1: 2 + 4 = 6
         // Sum: 4 + 6 = 10
@@ -270,11 +266,7 @@ mod tests {
 
     #[test]
     fn test_part_a_simple_multiplication() {
-        let input = vec![
-            "2 3".to_string(),
-            "4 5".to_string(),
-            "* *".to_string(),
-        ];
+        let input = vec!["2 3".to_string(), "4 5".to_string(), "* *".to_string()];
         // Column 0: 2 * 4 = 8
         // Column 1: 3 * 5 = 15
         // Sum: 8 + 15 = 23
@@ -283,11 +275,7 @@ mod tests {
 
     #[test]
     fn test_part_a_mixed_operations() {
-        let input = vec![
-            "1 2".to_string(),
-            "3 4".to_string(),
-            "+ *".to_string(),
-        ];
+        let input = vec!["1 2".to_string(), "3 4".to_string(), "+ *".to_string()];
         // Column 0 (+): 1 + 3 = 4
         // Column 1 (*): 2 * 4 = 8
         // Sum: 4 + 8 = 12
@@ -296,10 +284,7 @@ mod tests {
 
     #[test]
     fn test_part_a_single_row() {
-        let input = vec![
-            "5 10".to_string(),
-            "+ *".to_string(),
-        ];
+        let input = vec!["5 10".to_string(), "+ *".to_string()];
         // Column 0 (+): init=0, fold with 5 = 5
         // Column 1 (*): init=1, fold with 10 = 10
         // Sum: 5 + 10 = 15

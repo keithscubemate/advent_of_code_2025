@@ -125,7 +125,7 @@ mod tests {
         assert!(!is_twice(123)); // odd length
         assert!(!is_twice(1234)); // halves don't match
         assert!(!is_twice(1213)); // close but not equal
-        assert!(!is_twice(7));    // single digit
+        assert!(!is_twice(7)); // single digit
     }
 
     #[test]
@@ -138,9 +138,9 @@ mod tests {
 
     #[test]
     fn test_is_repeat_n_false() {
-        assert!(!is_repeat_n("12", 2));      // chunks don't match
-        assert!(!is_repeat_n("123", 2));     // not evenly divisible
-        assert!(!is_repeat_n("1213", 2));    // chunks don't match
+        assert!(!is_repeat_n("12", 2)); // chunks don't match
+        assert!(!is_repeat_n("123", 2)); // not evenly divisible
+        assert!(!is_repeat_n("1213", 2)); // chunks don't match
     }
 
     #[test]

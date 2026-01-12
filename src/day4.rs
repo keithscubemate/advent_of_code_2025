@@ -187,7 +187,7 @@ mod tests {
         // Center bale has 8 neighbors
         assert!(!is_accessable(1, 1, &grid, 4)); // 8 >= 4, not accessible
         assert!(!is_accessable(1, 1, &grid, 8)); // 8 >= 8, not accessible
-        assert!(is_accessable(1, 1, &grid, 9));  // 8 < 9, accessible
+        assert!(is_accessable(1, 1, &grid, 9)); // 8 < 9, accessible
     }
 
     #[test]
@@ -237,22 +237,14 @@ mod tests {
 
     #[test]
     fn test_part_a_all_isolated() {
-        let input = vec![
-            "@.@".to_string(),
-            "...".to_string(),
-            "@.@".to_string(),
-        ];
+        let input = vec!["@.@".to_string(), "...".to_string(), "@.@".to_string()];
         // 4 isolated bales, all accessible
         assert_eq!(Day4::part_a(&input), "4");
     }
 
     #[test]
     fn test_part_a_dense_grid() {
-        let input = vec![
-            "@@@".to_string(),
-            "@@@".to_string(),
-            "@@@".to_string(),
-        ];
+        let input = vec!["@@@".to_string(), "@@@".to_string(), "@@@".to_string()];
         // 3x3 grid of bales
         // Corners have 3 neighbors, edges have 5, center has 8
         // With limit 4: only corners (3 < 4) are accessible
@@ -261,11 +253,7 @@ mod tests {
 
     #[test]
     fn test_part_b_cascading_removal() {
-        let input = vec![
-            "@@@".to_string(),
-            "@@@".to_string(),
-            "@@@".to_string(),
-        ];
+        let input = vec!["@@@".to_string(), "@@@".to_string(), "@@@".to_string()];
         // First pass: remove 4 corners
         // Second pass: the remaining bales become accessible
         // All 9 bales should be counted
@@ -274,10 +262,7 @@ mod tests {
 
     #[test]
     fn test_part_b_no_bales() {
-        let input = vec![
-            "...".to_string(),
-            "...".to_string(),
-        ];
+        let input = vec!["...".to_string(), "...".to_string()];
         assert_eq!(Day4::part_b(&input), "0");
     }
 }

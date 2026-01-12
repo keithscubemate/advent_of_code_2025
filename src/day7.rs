@@ -146,20 +146,14 @@ mod tests {
 
     #[test]
     fn test_part_a_no_obstacles() {
-        let input = vec![
-            ".S.".to_string(),
-            "...".to_string(),
-        ];
+        let input = vec![".S.".to_string(), "...".to_string()];
         // No obstacle lines (no '^'), so no splits
         assert_eq!(Day7::part_a(&input), "0");
     }
 
     #[test]
     fn test_part_a_single_split() {
-        let input = vec![
-            ".S.".to_string(),
-            ".^.".to_string(),
-        ];
+        let input = vec![".S.".to_string(), ".^.".to_string()];
         // Beam starts at position 1
         // Obstacle at position 1 in second row
         // Beam hits obstacle, splits to positions 0 and 2
@@ -168,10 +162,7 @@ mod tests {
 
     #[test]
     fn test_part_a_beam_misses_obstacle() {
-        let input = vec![
-            "S..".to_string(),
-            "..^".to_string(),
-        ];
+        let input = vec!["S..".to_string(), "..^".to_string()];
         // Beam at position 0
         // Obstacle at position 2, beam doesn't hit it
         assert_eq!(Day7::part_a(&input), "0");
@@ -192,20 +183,14 @@ mod tests {
 
     #[test]
     fn test_part_b_no_obstacles() {
-        let input = vec![
-            ".S.".to_string(),
-            "...".to_string(),
-        ];
+        let input = vec![".S.".to_string(), "...".to_string()];
         // No obstacle lines, beam count stays at 1
         assert_eq!(Day7::part_b(&input), "1");
     }
 
     #[test]
     fn test_part_b_single_split() {
-        let input = vec![
-            ".S.".to_string(),
-            ".^.".to_string(),
-        ];
+        let input = vec![".S.".to_string(), ".^.".to_string()];
         // Beam starts with count 1 at position 1
         // Hits obstacle, splits to positions 0 and 2, each with count 1
         // Total: 1 + 1 = 2
@@ -228,11 +213,7 @@ mod tests {
 
     #[test]
     fn test_part_b_no_split_pass_through() {
-        let input = vec![
-            "S..".to_string(),
-            "...".to_string(),
-            "...".to_string(),
-        ];
+        let input = vec!["S..".to_string(), "...".to_string(), "...".to_string()];
         // Beam passes through without hitting obstacles
         assert_eq!(Day7::part_b(&input), "1");
     }
