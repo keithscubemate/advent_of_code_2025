@@ -1,5 +1,22 @@
+//! Day 7: Beam Splitting
+//!
+//! Simulates a beam traveling through a grid that splits when hitting obstacles.
+//! The beam starts at position `S` and splits into two beams (left and right)
+//! whenever it encounters an obstacle `^`.
+//!
+//! ## Input Format
+//! A grid where `.` is empty, `S` is the beam start, and `^` is an obstacle.
+//!
+//! ## Part A
+//! Counts the total number of splits that occur as beams propagate.
+//!
+//! ## Part B
+//! Counts the total number of beams at the end of the simulation,
+//! tracking beam counts through splits.
+
 use crate::day::Day;
 
+/// Solution for Day 7: Beam Splitting puzzle.
 pub struct Day7 {}
 
 impl Day for Day7 {
@@ -87,14 +104,19 @@ impl Day for Day7 {
     }
 }
 
+/// Represents a cell type in the beam grid.
 #[derive(PartialEq, Clone, Copy)]
 enum Tile {
+    /// Empty space (`.`) - beams pass through
     Empty,
+    /// Beam position (`S`) - indicates beam presence
     Beam,
+    /// Obstacle (`^`) - causes beams to split
     Obstacle,
 }
 
 impl Tile {
+    /// Parses a tile from its character representation.
     fn from_char(c: char) -> Self {
         match c {
             '.' => Self::Empty,
