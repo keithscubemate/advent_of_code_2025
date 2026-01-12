@@ -1,5 +1,21 @@
+//! Day 5: Range Filtering
+//!
+//! Works with numeric ranges and ID filtering. Uses interval merging
+//! techniques to efficiently count covered values.
+//!
+//! ## Input Format
+//! Ranges in `start-end` format, followed by a blank line, then IDs to check.
+//!
+//! ## Part A
+//! Counts how many IDs fall within at least one of the given ranges.
+//!
+//! ## Part B
+//! Calculates the total count of unique values covered by all ranges
+//! (merging overlapping ranges).
+
 use crate::day::Day;
 
+/// Solution for Day 5: Range Filtering puzzle.
 pub struct Day5 {}
 
 impl Day for Day5 {
@@ -87,15 +103,24 @@ impl Day for Day5 {
     }
 }
 
+/// Indicates whether a boundary is the start or end of a range.
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
 enum Side {
+    /// Beginning of a range (sorted before End at same value)
     Start,
+    /// End of a range
     End,
 }
 
+/// Represents a boundary point of a range for interval merging.
+///
+/// Boundaries are sorted by value first, then by side (Start before End).
+/// This ordering ensures proper merging of adjacent and overlapping ranges.
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug)]
 struct Boundary {
+    /// The numeric position of this boundary
     value: u64,
+    /// Whether this is a range start or end
     side: Side,
 }
 
