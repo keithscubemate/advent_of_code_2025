@@ -1,5 +1,21 @@
+//! Day 3: Joltage Extraction
+//!
+//! Extracts the maximum possible multi-digit number from a sequence of digits
+//! by greedily selecting the largest available digit at each position while
+//! ensuring enough digits remain for subsequent positions.
+//!
+//! ## Input Format
+//! Each line contains a sequence of single digits (0-9).
+//!
+//! ## Part A
+//! Extracts a 2-digit joltage value from each line and sums them.
+//!
+//! ## Part B
+//! Extracts a 12-digit joltage value from each line and sums them.
+
 use crate::day::Day;
 
+/// Solution for Day 3: Joltage Extraction puzzle.
 pub struct Day3 {}
 
 impl Day for Day3 {
@@ -30,6 +46,18 @@ impl Day for Day3 {
     }
 }
 
+/// Extracts the maximum joltage value by greedily selecting digits.
+///
+/// For each digit position, finds the maximum digit in the valid range
+/// (leaving enough remaining digits for subsequent positions), then
+/// continues searching from after that position.
+///
+/// # Arguments
+/// * `bank` - Slice of available digits (0-9)
+/// * `digits_to_find` - Number of digits to extract
+///
+/// # Returns
+/// The extracted digits combined into a single number.
 fn get_joltage(bank: &[u64], digits_to_find: usize) -> u64 {
     let mut digits = vec![];
 
@@ -51,6 +79,14 @@ fn get_joltage(bank: &[u64], digits_to_find: usize) -> u64 {
     digits.iter().fold(0, |acc, val| (acc * 10 + val))
 }
 
+/// Finds the maximum value in a slice and returns its adjusted index.
+///
+/// # Arguments
+/// * `bank` - Slice of values to search
+/// * `start` - Offset to add to the found index (for tracking position in original array)
+///
+/// # Returns
+/// A tuple of (adjusted_index, max_value).
 fn max_of_range_with_idx(bank: &[u64], start: usize) -> (usize, u64) {
     let mut max_idx = 0;
     let mut max = bank[max_idx];
@@ -188,10 +224,7 @@ mod tests {
 
     #[test]
     fn test_part_b_multiple_lines() {
-        let input = vec![
-            "111111111111".to_string(),
-            "222222222222".to_string(),
-        ];
+        let input = vec!["111111111111".to_string(), "222222222222".to_string()];
         // Each line produces 111111111111 and 222222222222
         // Sum: 111111111111 + 222222222222 = 333333333333
         assert_eq!(Day3::part_b(&input), "333333333333");
