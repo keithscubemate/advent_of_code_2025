@@ -80,3 +80,55 @@ fn is_repeat_n(num: &str, num_splits: usize) -> bool {
 
     part_pairs.all(|pp| pp[0] == pp[1])
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_twice_true() {
+        assert!(is_twice(77));
+        assert!(is_twice(1212));
+        assert!(is_twice(123123));
+        assert!(is_twice(11));
+    }
+
+    #[test]
+    fn test_is_twice_false() {
+        assert!(!is_twice(123)); // odd length
+        assert!(!is_twice(1234)); // halves don't match
+        assert!(!is_twice(1213)); // close but not equal
+        assert!(!is_twice(7));    // single digit
+    }
+
+    #[test]
+    fn test_is_repeat_n_true() {
+        assert!(is_repeat_n("11", 2));
+        assert!(is_repeat_n("111", 3));
+        assert!(is_repeat_n("1212", 2));
+        assert!(is_repeat_n("abcabcabc", 3));
+    }
+
+    #[test]
+    fn test_is_repeat_n_false() {
+        assert!(!is_repeat_n("12", 2));      // chunks don't match
+        assert!(!is_repeat_n("123", 2));     // not evenly divisible
+        assert!(!is_repeat_n("1213", 2));    // chunks don't match
+    }
+
+    #[test]
+    fn test_is_repeat_true() {
+        assert!(is_repeat(11));
+        assert!(is_repeat(111));
+        assert!(is_repeat(1212));
+        assert!(is_repeat(123123));
+        assert!(is_repeat(121212));
+    }
+
+    #[test]
+    fn test_is_repeat_false() {
+        assert!(!is_repeat(12));
+        assert!(!is_repeat(123));
+        assert!(!is_repeat(1234));
+    }
+}
