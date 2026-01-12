@@ -84,7 +84,12 @@ impl Day for Day8 {
             }
         }
 
-        let mut circuit_sizes: Vec<_> = circuits.into_iter().map(|c| c.len()).collect();
+        let mut circuit_sizes: Vec<_> = circuits
+            .into_iter()
+            .filter(|c| !c.is_empty())
+            .map(|c| c.len())
+            .collect();
+        println!("{:?}", circuit_sizes);
 
         circuit_sizes.sort();
 
@@ -283,7 +288,7 @@ mod tests {
         // Product of top 3 circuit sizes: 3 * 1 * 1 = 3 (or just 3 if only 1 circuit)
         let result = Day8::part_a(&input);
         // The result depends on the algorithm - let's just verify it runs
-        assert!(!result.is_empty());
+        assert_eq!(result, "3");
     }
 
     #[test]
@@ -298,7 +303,7 @@ mod tests {
         // Should form 2 circuits of size 2 each
         // Product of top 3: 2 * 2 * 1 = 4
         let result = Day8::part_a(&input);
-        assert!(!result.is_empty());
+        assert_eq!(result, "4");
     }
 
     #[test]
@@ -310,6 +315,6 @@ mod tests {
         ];
         // Simple linear arrangement
         let result = Day8::part_b(&input);
-        assert!(!result.is_empty());
+        assert_eq!(result, "2");
     }
 }
