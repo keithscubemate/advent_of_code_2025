@@ -107,7 +107,21 @@ impl Day for Day8 {
         let mut bh1 = None;
         let mut bh2 = None;
 
-        for (_, b1, b2) in distances {
+        // Check convergence less frequently for better performance
+        // Use smaller interval for small datasets
+        let check_interval = if boxes.len() > 1000 {
+            1000
+        } else if boxes.len() > 100 {
+            100
+        } else {
+            10
+        };
+        let target_size = boxes.len();
+
+        let mut last_b1 = None;
+        let mut last_b2 = None;
+
+        for (iteration, (_, b1, b2)) in distances.into_iter().enumerate() {
             if circuits
                 .iter()
                 .find(|c| c.contains(b1) && c.contains(b2))
@@ -116,6 +130,10 @@ impl Day for Day8 {
                 continue;
             }
 
+            // Track the last pair that was actually processed
+            last_b1 = Some(b1);
+            last_b2 = Some(b2);
+
             let mut cs = circuits
                 .iter_mut()
                 .filter(|c| c.contains(b1) || c.contains(b2));
@@ -123,34 +141,49 @@ impl Day for Day8 {
             let c1 = cs.next();
             let c2 = cs.next();
 
-            match (c1, c2) {
+            let check_now = match (c1, c2) {
                 (Some(c1), Some(c2)) => {
+                    // Merging two circuits - this is a significant event
                     for b in c2.iter() {
                         c1.insert(b);
                     }
                     c2.clear();
+                    true // Always check after a merge
                 }
                 (Some(c), None) | (None, Some(c)) => {
                     c.insert(b1);
                     c.insert(b2);
+                    false
                 }
                 (None, None) => {
                     let mut new_circuit = HashSet::new();
                     new_circuit.insert(b1);
                     new_circuit.insert(b2);
                     circuits.push(new_circuit);
+                    false
+                }
+            };
+
+            // Check convergence after merges (critical events) or periodically
+            if check_now || iteration % check_interval == 0 {
+                // Clean up empty circuits to speed up subsequent operations
+                circuits.retain(|c| !c.is_empty());
+
+                // Check if we have a single circuit containing all boxes
+                if circuits.len() == 1 && circuits[0].len() == target_size {
+                    bh1 = Some(b1);
+                    bh2 = Some(b2);
+                    break;
                 }
             }
+        }
 
-            let circuit_sizes = circuits.iter().map(|c| c.len()).collect::<Vec<_>>();
-            let max_circuit_size = circuit_sizes.iter().max().unwrap();
-
-            if circuits.iter().filter(|c| c.len() > 0).count() == 1
-                && *max_circuit_size == boxes.len()
-            {
-                bh1 = Some(b1);
-                bh2 = Some(b2);
-                break;
+        // Final check in case we didn't detect convergence during processing
+        if bh1.is_none() {
+            circuits.retain(|c| !c.is_empty());
+            if circuits.len() == 1 && circuits[0].len() == target_size {
+                bh1 = last_b1;
+                bh2 = last_b2;
             }
         }
 
