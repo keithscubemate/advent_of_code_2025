@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn test_part_b_no_split_pass_through() {
-        let input = vec!["S..".to_string(), "...".to_string(), "...".to_string()];
+        let input = vec!["S..".to_string(), ".^.".to_string(), "..^".to_string()];
         // Beam passes through without hitting obstacles
         assert_eq!(Day7::part_b(&input), "1");
     }
