@@ -1,10 +1,29 @@
+//! Day 4: Bale Accessibility
+//!
+//! Simulates a grid of hay bales where accessibility is determined by
+//! the number of neighboring bales (using 8-directional adjacency).
+//!
+//! ## Input Format
+//! A grid where `.` represents empty space and `@` represents a bale.
+//!
+//! ## Part A
+//! Counts bales that have fewer than 4 neighboring bales (accessible bales).
+//!
+//! ## Part B
+//! Iteratively removes accessible bales until no more can be removed,
+//! counting the total number of bales removed across all iterations.
+
 use crate::day::Day;
 
+/// Solution for Day 4: Bale Accessibility puzzle.
 pub struct Day4 {}
 
+/// Represents a cell in the grid.
 #[derive(Debug, PartialEq)]
 enum Square {
+    /// Empty space (`.`)
     Empty,
+    /// Hay bale (`@`)
     Bale,
 }
 
@@ -83,6 +102,18 @@ impl Day for Day4 {
     }
 }
 
+/// Determines if a bale at position (i, j) is accessible.
+///
+/// A bale is accessible if it exists and has fewer than `bale_limit`
+/// neighboring bales in the 8 cardinal and diagonal directions.
+///
+/// # Arguments
+/// * `i`, `j` - Grid coordinates to check
+/// * `grid` - The grid of squares
+/// * `bale_limit` - Maximum number of neighbors for a bale to be accessible
+///
+/// # Returns
+/// `true` if the position contains an accessible bale.
 fn is_accessable(i: isize, j: isize, grid: &Vec<Vec<Square>>, bale_limit: usize) -> bool {
     if i as usize >= grid.len() || j as usize >= grid[0].len() {
         return false;
