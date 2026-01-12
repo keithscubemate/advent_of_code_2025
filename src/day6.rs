@@ -1,8 +1,25 @@
+//! Day 6: Column Arithmetic
+//!
+//! Performs column-wise arithmetic operations on numeric data. Each column
+//! has an associated operation (+ or *) that is applied to reduce the column
+//! to a single value.
+//!
+//! ## Input Format
+//! Rows of space-separated numbers, with the last row containing operations (+ or *).
+//!
+//! ## Part A
+//! Parses columns by whitespace, applies operations, and sums the results.
+//!
+//! ## Part B
+//! Uses fixed-width columns based on operation positions, reads digits vertically
+//! to form numbers, then applies operations and sums the results.
+
 use anyhow::{Error, Result, anyhow};
 
 use crate::day::Day;
 use std::str::FromStr;
 
+/// Solution for Day 6: Column Arithmetic puzzle.
 pub struct Day6 {}
 
 impl Day for Day6 {
@@ -99,13 +116,17 @@ impl Day for Day6 {
     }
 }
 
+/// Arithmetic operation type for column reduction.
 #[derive(Debug)]
 enum Operand {
+    /// Addition operation (+)
     Plus,
+    /// Multiplication operation (*)
     Times,
 }
 
 impl Operand {
+    /// Applies the operation to two operands.
     fn apply<'a, 'b>(&'a self, a: u64, b: u64) -> u64 {
         match self {
             Self::Plus => a + b,
@@ -113,6 +134,7 @@ impl Operand {
         }
     }
 
+    /// Returns the identity value for this operation (0 for +, 1 for *).
     fn init(&self) -> u64 {
         match self {
             Self::Plus => 0,
@@ -120,6 +142,7 @@ impl Operand {
         }
     }
 
+    /// Parses an operand from a single character.
     fn from_char(c: char) -> Result<Self> {
         match c {
             '+' => Ok(Self::Plus),
@@ -140,6 +163,13 @@ impl FromStr for Operand {
     }
 }
 
+/// Parses the operation line to extract operations and their column widths.
+///
+/// Scans the line for `+` and `*` characters, tracking the number of
+/// characters between operations to determine column widths.
+///
+/// # Returns
+/// A vector of (operation, width) pairs for each column.
 fn op_and_width(line: &str) -> Vec<(Operand, usize)> {
     let mut rv = vec![];
     let mut count = 0;
